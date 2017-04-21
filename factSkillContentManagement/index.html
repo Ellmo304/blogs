@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title></title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <div class="walkthrough container">
+    <h1><strong>Creating a basic Alexa Fact Skill using Opearlo's Content Management System</strong></h1>
+    <br />
+    <p>Opearlo's new content management system enables Alexa developers to update Alexa's responses within their skills through the <a href="https://analytics.opearlo.com">analytics.opearlo.com</a> website. In this post, I'll describe how I went about building a basic fact skill - "Football Facts" - where Alexa can deliver random football based facts to the user by integrating Opearlo's content management system. I've outlined the development process below!</p>
+    <br />
+    <h2><strong>Setting up your skill template</strong></h2>
+    <p>I chose to build a fact skill as this is many Alexa developers' first build and a good entry point for people looking to get into writing skills for Alexa. Keeping the functionality super-basic to begin with, I have determined I want my skill to give the user a random football-based fact upon the GetFact intent being triggered. I opted to use the NodeJS Alexa-SDK for this project. I set up my Intent schema and Utterances as usual, then set up a boilerplate index.js file, leaving my 'GetFactIntent' blank for now.</p>
+    <br />
+    <h2><strong>Creating Voice Content with Opearlo</strong></h2>
+    <br />
+    Opearlo's content management system works in two stages. First, you create a new piece of 'Voice Content' using a form on their site, and second, you call a reference to that content from within your Alexa skill.
+    There are currently 4 content-types you can create:
+    <p><strong>Fixed Text: </strong>The fixed text content type will return a single text response for Alexa to read.</p>
+    <p><strong>Random Text: </strong>By adding a Random Text Content, you are able to add a group of potential text responses, one of which will be selected at random for Alexa to read when the content is called. You can easily edit your list of responses at any time through the Opearlo site.</p>
+    <p><strong>Fixed SSML: </strong>The fixed SSML content type will return a single SSML audio response for Alexa to play. You can upload any audio file and Opearlo will convert it to Alexa ready SSML format, ready to be called by your skill.</p>
+    <p><strong>Random SSML: </strong>By adding a Random SSML Content, you are able to add a group of potential SSML audio responses, one of which will be selected at random for Alexa to play when the content is called. Again, your list of responses can be updated at any time. <strong><em>To use this content type, you must first upload each audio file you wish to include as it's own fixed SSML audio response. You will then see a list of all audio files associated with the current voice app, where you can choose which ones to include in your random SSML content.</em></strong></p>
+    <p>You have the flexibility with all content-types to make them permanent responses, or just active between certain dates.</p>
+    <br />
+    <p>The example below shows how I used the <strong>'Random Text'</strong> type to implement my 'GetFact' intent</p>
+    <br />
+    <h4>Step 1: </h4><h5 class="steps">Navigate to the Voice Content tab at <a href="https://analytics.opearlo.com">analytics.opearlo.com</a> and click 'Add New Voice Content'.</h5><img class="screenshot" src="http://res.cloudinary.com/opearlo/image/upload/v1492593896/addButton_mxwajv.png" alt="add content button" />
+    <br />
+    <h4>Step 2: </h4><h5 class="steps">Choose an appropriate name for your content, I called mine 'Random Football Facts'.</h5><img class="screenshot" src="http://res.cloudinary.com/opearlo/image/upload/v1492774548/footyName_eeln3t.png" alt="random text name field" />
+    <br />
+    <h4>Step 3: </h4><h5 class="steps">Select the desired type of content. For my GetFactIntent I'll be choosing 'Text Response - Random'.</h5><img class="screenshot" src="http://res.cloudinary.com/opearlo/image/upload/v1492593897/textRandomType_vfyxvf.png" alt="random text type field" />
+    <br />
+    <h4>Step 4: </h4><h5 class="steps">Enter a response message for each field in your response list. Here I input 1 fun footy fact in each response field. A good fact skill will have at least 20 facts to keep the user engaged! You can add new fields with the 'Add Response' button.</h5><img class="screenshot" src="http://res.cloudinary.com/opearlo/image/upload/v1492774549/footyResponse_vbddgv.png" alt="random text response field" />
+    <br />
+    <h4>Step 5: </h4><h5 class="steps">Choose whether this is a permanent message, or only active between certain dates, in this case, I wanted the intent to be permanent.</h5><img class="screenshot" src="http://res.cloudinary.com/opearlo/image/upload/v1492593896/datesActive_cgf3ga.png" alt="random text dates active" />
+    <br />
+    <h4>Step 6: </h4><h5 class="steps">Once you're happy, submit the form and your new content is ready to be called in your skill!</h5><img class="screenshot" src="http://res.cloudinary.com/opearlo/image/upload/v1492593896/addContent_jewicb.png" alt="submit button" />
+
+    <br />
+    <h2><strong>Calling Voice Content from your skill</strong></h2>
+    <br />
+    <p>So you've created a piece of voice content, now how do you access it in your skill? You must first have the 'opearlo-analytics' npm module installed (npm i --save opearlo-analytics). </p>
+
+    <p>To access your voice content, all you have to do is initiate the <strong><em>.getVoiceContent()</strong></em> method within any function where you want to call voice content you have created on Opearlo. For my Football Facts skill, I wish to receive one of my random facts in the GetFact intent. Here's the code I used to do that: </p>
+    <p>
+      <img class="screenshot" src="http://res.cloudinary.com/opearlo/image/upload/v1492782039/Screen_Shot_2017-04-21_at_14.40.01_dyrbq5.png" alt="submit button" />
+  </p>
+    <p>As you can see, the <strong><em>.getVoiceContent()</strong></em> method takes 4 user-specific arguments: </p>
+    <ul>
+      <li>Your Opearlo-User-ID</li>
+      <li>The Voice-App-Name (the name of the voice app/skill on Opearlo in which the content exists)</li>
+      <li>Your Opearlo-API-Key</li>
+      <li>The Voice-Content-ID of the specific content you wish to call</li>
+    </ul>
+    <p><strong>Success!!!</strong> Now every time my GetFactIntent is triggered, I receive a random football fact from the list of responses I input when I created my content!</p>
+    <p>Your <strong><em>Opearlo-User-ID, Voice-App-Name</strong></em> and <strong><em>Opearlo-API-Key</em></strong> can all be found on the docs page for your voice app at <a href="https://analytics.opearlo.com/docs">analytics.opearlo.com/docs</a></p>
+    <p>The <strong><em>Voice-Content-ID</strong></em> for each content can be found at <a href="https://analytics.opearlo.com/voice-content">analytics.opearlo.com/voice-content</a> in the first column of the voice content table of the corresponding voice app.</p>
+    <br />
+    <h2><strong>Try it yourself!</strong></h2>
+    <p>As you can see, it's really easy to integrate Opearlo Content Management in your Alexa skill. The great news is, by editing an existing piece of voice content on the Opearlo Analytics site, you can update the response message, the dates active and even the content type without having to touch your code base again! Why not try adding an SSML Audio response somewhere in your fact skill? Or adding temporary content active over a certain period? Let us know how you get on! </p>
+    <br />
+
+
+
+
+
+  </div>
+
+</body>
+</html>
+
+
+<!--
+const Alexa = require('alexa-sdk');
+
+const OpearloAnalytics = require('opearlo-analytics');
+
+// const APP_ID = 'amzn1.ask.skill.4af154b7-b157-499d-aa15-16f4e2fb197d';
+const opearloApiKey = 'RrTGUvJLyz3w5yR8zaC5p5V7Q83VCnfv6M8fnrCE';
+const opearloUserId = 'kJnUOYznWOZmmLEv4aUesaMrOg63';
+const voiceAppName = 'footy-facts';
+
+const welcomeMessage = 'Welcome to Footy Facts! Ask me for a fact to get started!';
+const reprompt = 'Would you like to hear another fact?';
+const helpMessage = 'Ask me for a footy fact';
+
+const handlers = {
+  'LaunchRequest': function () {
+    this.emit(':ask', welcomeMessage, welcomeMessage);
+  },
+  'GetFactIntent': function () {
+    OpearloAnalytics.getVoiceContent(opearloUserId, voiceAppName, opearloApiKey, 'random-footy-facts', (result) => {
+      this.emit(':ask', `${result}. ${reprompt}`, reprompt);
+    });
+  },
+  'AMAZON.StopIntent': function () {
+    OpearloAnalytics.recordAnalytics(this.event.session.user.userId, opearloApiKey, (result) => {
+      this.emit(':tell', 'Thanks for using footy facts. Goodbye!');
+    });
+  },
+  'AMAZON.CancelIntent': function () {
+    OpearloAnalytics.recordAnalytics(this.event.session.user.userId, opearloApiKey, (result) => {
+      this.emit(':tell', 'Thanks for using footy facts. Goodbye!');
+    });
+  },
+  'AMAZON.HelpIntent': function () {
+    this.emit(':ask', helpMessage, reprompt);
+  },
+  'AMAZON.YesIntent': function () {
+    this.emit('GetFactIntent');
+  },
+  'AMAZON.NoIntent': function () {
+    this.emit('AMAZON.StopIntent');
+  },
+  'SessionEndedRequest': function () {
+    // Use this function to clear up and save any data needed between sessions
+    this.emit('AMAZON.StopIntent');
+  },
+  'Unhandled': function () {
+    this.emit(':ask', helpMessage, reprompt);
+  },
+};
+
+exports.handler = function (event, context, callback) {
+  const alexa = Alexa.handler(event, context);
+  alexa.registerHandlers(handlers);
+  if (event.session.new) {
+    OpearloAnalytics.initializeAnalytics(opearloUserId, voiceAppName, event.session);
+  }
+  if (event.request.type === 'IntentRequest') {
+    OpearloAnalytics.registerVoiceEvent(event.session.user.userId, 'IntentRequest', event.request.intent);
+  }
+  alexa.execute();
+}; -->
